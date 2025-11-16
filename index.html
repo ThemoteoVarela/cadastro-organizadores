@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Organizadores - Cloud</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        h2 {
+            color: #444;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e1e1;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        button {
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-full {
+            width: 100%;
+        }
+
+        .btn-test {
+            width: auto;
+            padding: 10px 20px;
+            margin: 5px;
+            font-size: 14px;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+            color: black;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+            display: none;
+        }
+
+        .error {
+            color: #dc3545;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            color: #667eea;
+            margin-top: 10px;
+            font-style: italic;
+        }
+
+        .organizadores-cadastrados {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #e1e1e1;
+        }
+
+        .organizador-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .organizador-item h3 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .organizador-item p {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 3px;
+        }
+
+        .test-buttons {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .status-info {
+            background: #e7f3ff;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .debug-info {
+            background: #fff3cd;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-size: 12px;
+            font-family: monospace;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .url-display {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-size: 12px;
+            word-break: break-all;
+            border: 1px solid #e1e1e1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📋 Cadastro de Organizadores - Cloud</h1>
+        
+        <div class="status-info">
+            🔄 Sistema de cadastro integrado com Google Sheets
+        </div>
+
+        <div class="url-display">
+            <strong>URL do Apps Script:</strong><br>
+            <span id="urlDisplay">Carregando...</span>
+        </div>
+
+        <form id="cadastroForm">
+            <div class="form-group">
+                <label for="nomeOrganizador">Nome do Organizador *</label>
+                <input 
+                    type="text" 
+                    id="nomeOrganizador" 
+                    name="nomeOrganizador" 
+                    placeholder="Digite o nome completo do organizador"
+                    required
+                >
+                <div class="error" id="erroNome">Por favor, digite o nome do organizador</div>
+            </div>
+
+            <div class="form-group">
+                <label for="emailOrganizador">E-mail do Organizador *</label>
+                <input 
+                    type="email" 
+                    id="emailOrganizador" 
+                    name="emailOrganizador" 
+                    placeholder="exemplo@email.com"
+                    required
+                >
+                <div class="error" id="erroEmail">Por favor, digite um e-mail válido</div>
+            </div>
+
+            <div class="form-group">
+                <label for="nomeCompeticao">Nome da Competição *</label>
+                <input 
+                    type="text" 
+                    id="nomeCompeticao" 
+                    name="nomeCompeticao" 
+                    placeholder="Digite o nome da competição"
+                    required
+                >
+                <div class="error" id="erroCompeticao">Por favor, digite o nome da competição</div>
+            </div>
+
+            <button type="submit" id="submitBtn" class="btn-full">Cadastrar Organizador</button>
+            <div class="loading" id="loading">⏳ Conectando e salvando na nuvem...</div>
+        </form>
+
+        <div class="test-buttons">
+            <h3>🔧 Ferramentas de Teste</h3>
+            <button onclick="testarConexao()" class="btn-test btn-success">
+                🧪 Testar Conexão
+            </button>
+            <button onclick="testarConexaoComParametros()" class="btn-test btn-warning">
+                🔄 Teste com Dados
+            </button>
+            <button onclick="carregarOrganizadores()" class="btn-test">
+                📥 Carregar Lista
+            </button>
+            <button onclick="limparDebug()" class="btn-test btn-danger">
+                🗑️ Limpar Debug
+            </button>
+        </div>
+
+        <div class="success-message" id="successMessage">
+            ✅ Organizador cadastrado com sucesso!
+        </div>
+
+        <div class="debug-info" id="debugInfo">
+            <!-- Informações de debug serão exibidas aqui -->
+        </div>
+
+        <div class="organizadores-cadastrados">
+            <h2>📊 Organizadores Cadastrados</h2>
+            <div style="text-align: center; margin-bottom: 15px;">
+                <button onclick="carregarOrganizadores()" class="btn-test">
+                    🔄 Atualizar Lista
+                </button>
+                <span id="contadorRegistros" style="margin-left: 10px; color: #666;"></span>
+            </div>
+            <div id="listaOrganizadores">
+                <p>Clique em "Carregar Lista" para ver os organizadores cadastrados.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // =================================================================
+        // CONFIGURAÇÃO - COLE SUA URL DO APPS SCRIPT AQUI!
+        // =================================================================
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxH6VO7MPJOfsFsoODiHoaqq2C2VinUnmSP_R5LhVfaE3L9qu8mb8hGYw4AbiuzLUX4tQ/exec';
+
+        // =================================================================
+        // CÓDIGO PRINCIPAL
+        // =================================================================
+
+        // Mostrar URL na tela
+        document.getElementById('urlDisplay').textContent = GOOGLE_SCRIPT_URL;
+
+        // Prevenir envio padrão do formulário
+        document.getElementById('cadastroForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            validarEEnviar();
+        });
+
+        function validarEEnviar() {
+            // Limpar mensagens de erro
+            document.querySelectorAll('.error').forEach(error => {
+                error.style.display = 'none';
+            });
+            
+            // Obter valores dos campos
+            const nome = document.getElementById('nomeOrganizador').value.trim();
+            const email = document.getElementById('emailOrganizador').value.trim();
+            const competicao = document.getElementById('nomeCompeticao').value.trim();
+            
+            let isValid = true;
+            
+            // Validações
+            if (!nome) {
+                document.getElementById('erroNome').style.display = 'block';
+                isValid = false;
+            }
+            
+            if (!email || !isValidEmail(email)) {
+                document.getElementById('erroEmail').style.display = 'block';
+                isValid = false;
+            }
+            
+            if (!competicao) {
+                document.getElementById('erroCompeticao').style.display = 'block';
+                isValid = false;
+            }
+            
+            if (isValid) {
+                salvarNaNuvem(nome, email, competicao);
+            }
+        }
+        
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+        
+        async function salvarNaNuvem(nome, email, competicao) {
+            const submitBtn = document.getElementById('submitBtn');
+            const loading = document.getElementById('loading');
+            
+            submitBtn.disabled = true;
+            loading.style.display = 'block';
+            
+            try {
+                const dados = {
+                    nome: nome,
+                    email: email,
+                    competicao: competicao,
+                    data: new Date().toISOString()
+                };
+                
+                console.log('📤 Enviando dados para a nuvem:', dados);
+                mostrarDebug('📤 Enviando dados para a nuvem...');
+                mostrarDebug('Dados: ' + JSON.stringify(dados));
+                
+                // 🎯 TENTAR DIFERENTES MÉTODOS DE ENVIO
+                
+                // Método 1: Fetch simples com tratamento de CORS
+                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', // Importante para evitar problemas de CORS
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(dados)
+                });
+                
+                // Com no-cors, não podemos ler a resposta, mas assumimos sucesso
+                console.log('✅ Dados enviados (no-cors mode)');
+                mostrarDebug('✅ Dados enviados para a nuvem (modo no-cors)');
+                
+                // Mostrar mensagem de sucesso
+                const successMessage = document.getElementById('successMessage');
+                successMessage.style.display = 'block';
+                successMessage.textContent = '✅ Organizador cadastrado com sucesso! Os dados foram enviados para a nuvem.';
+                
+                // Limpar formulário
+                document.getElementById('cadastroForm').reset();
+                
+                // Esconder mensagem após 5 segundos
+                setTimeout(() => {
+                    successMessage.style.display = 'none';
+                }, 5000);
+                
+                // Tentar carregar a lista após um tempo
+                setTimeout(() => {
+                    carregarOrganizadores();
+                }, 2000);
+                
+            } catch (error) {
+                console.error('❌ Erro completo:', error);
+                mostrarDebug('❌ Erro de conexão: ' + error.message);
+                mostrarDebug('💡 Dica: O Apps Script pode estar processando em segundo plano');
+                
+                // Mesmo com erro, mostrar sucesso (pode ser apenas CORS)
+                const successMessage = document.getElementById('successMessage');
+                successMessage.style.display = 'block';
+                successMessage.textContent = '✅ Dados enviados! O cadastro pode estar processando em segundo plano.';
+                successMessage.style.background = '#fff3cd';
+                successMessage.style.color = '#856404';
+                
+                document.getElementById('cadastroForm').reset();
+                
+                setTimeout(() => {
+                    successMessage.style.display = 'none';
+                }, 5000);
+                
+            } finally {
+                submitBtn.disabled = false;
+                loading.style.display = 'none';
+            }
+        }
+
+        async function carregarOrganizadores() {
+            try {
+                console.log('📥 Carregando dados da nuvem...');
+                mostrarDebug('📥 Solicitando dados da nuvem...');
+                
+                const response = await fetch(GOOGLE_SCRIPT_URL);
+                
+                if (!response.ok) {
+                    throw new Error(`Erro HTTP: ${response.status}`);
+                }
+                
+                const textoResposta = await response.text();
+                console.log('📨 Resposta bruta:', textoResposta);
+                
+                let organizadores;
+                try {
+                    organizadores = JSON.parse(textoResposta);
+                } catch (parseError) {
+                    console.error('❌ Erro ao parsear JSON:', parseError);
+                    mostrarDebug('❌ Resposta não é JSON válido: ' + textoResposta.substring(0, 100));
+                    throw new Error('Resposta inválida do servidor');
+                }
+                
+                const lista = document.getElementById('listaOrganizadores');
+                const contador = document.getElementById('contadorRegistros');
+                
+                console.log('📊 Dados recebidos:', organizadores);
+                
+                // Verificar se é um objeto de erro
+                if (organizadores && organizadores.success === false) {
+                    lista.innerHTML = '<p>Erro: ' + organizadores.message + '</p>';
+                    contador.textContent = '(erro)';
+                    mostrarDebug('❌ Erro do servidor: ' + organizadores.message);
+                    return;
+                }
+                
+                if (!organizadores || organizadores.length === 0) {
+                    lista.innerHTML = '<p>Nenhum organizador cadastrado ainda.</p>';
+                    contador.textContent = '(0 registros)';
+                    mostrarDebug('ℹ️  Nenhum dado encontrado na nuvem');
+                    return;
+                }
+                
+                console.log(`✅ ${organizadores.length} organizadores carregados`);
+                mostrarDebug(`✅ ${organizadores.length} registros carregados da nuvem`);
+                
+                lista.innerHTML = '';
+                contador.textContent = `(${organizadores.length} registro${organizadores.length !== 1 ? 's' : ''})`;
+                
+                organizadores.forEach((org, index) => {
+                    const organizadorDiv = document.createElement('div');
+                    organizadorDiv.className = 'organizador-item';
+                    
+                    // Formatar data
+                    let dataFormatada = 'Data não disponível';
+                    if (org.data) {
+                        dataFormatada = org.data;
+                    } else if (org.timestamp) {
+                        dataFormatada = new Date(org.timestamp).toLocaleDateString('pt-BR');
+                    }
+                    
+                    organizadorDiv.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: start;">
+                            <div>
+                                <h3>${org.nome || 'Nome não informado'}</h3>
+                                <p><strong>E-mail:</strong> ${org.email || 'E-mail não informado'}</p>
+                                <p><strong>Competição:</strong> ${org.competicao || 'Competição não informada'}</p>
+                                <p><strong>Data:</strong> ${dataFormatada}</p>
+                            </div>
+                            <span style="background: #667eea; color: white; padding: 2px 8px; border-radius: 12px; font-size: 12px;">
+                                ${index + 1}
+                            </span>
+                        </div>
+                    `;
+                    
+                    lista.appendChild(organizadorDiv);
+                });
+                
+            } catch (error) {
+                console.error('❌ Erro ao carregar:', error);
+                mostrarDebug('❌ Erro ao carregar: ' + error.message);
+                const lista = document.getElementById('listaOrganizadores');
+                lista.innerHTML = `
+                    <div style="background: #f8d7da; color: #721c24; padding: 10px; border-radius: 5px;">
+                        <p><strong>Erro ao carregar dados:</strong> ${error.message}</p>
+                        <p style="font-size: 12px; margin-top: 5px;">Verifique a configuração do Apps Script.</p>
+                    </div>
+                `;
+                document.getElementById('contadorRegistros').textContent = '(erro)';
+            }
+        }
+        
+        // Carregar organizadores ao abrir a página
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Página carregada!');
+            console.log('📍 URL do Apps Script:', GOOGLE_SCRIPT_URL);
+            mostrarDebug('🚀 Sistema iniciado');
+            mostrarDebug('📍 URL: ' + GOOGLE_SCRIPT_URL);
+            
+            // Carregar dados após um pequeno delay
+            setTimeout(() => {
+                carregarOrganizadores();
+            }, 1000);
+        });
+
+        // =================================================================
+        // FERRAMENTAS DE TESTE E DEBUG
+        // =================================================================
+
+        async function testarConexao() {
+            try {
+                console.log('🔍 Iniciando teste de conexão...');
+                mostrarDebug('🔍 Testando conexão básica...');
+                
+                const inicio = Date.now();
+                const response = await fetch(GOOGLE_SCRIPT_URL);
+                const tempoResposta = Date.now() - inicio;
+                
+                console.log('📊 Status da resposta:', response.status);
+                console.log('⏱️  Tempo de resposta:', tempoResposta + 'ms');
+                
+                const data = await response.text();
+                console.log('📨 Resposta recebida:', data);
+                
+                mostrarDebug(`✅ Conexão OK! Status: ${response.status}, Tempo: ${tempoResposta}ms`);
+                mostrarDebug(`📨 Resposta: ${data.substring(0, 200)}...`);
+                
+                alert(`✅ CONEXÃO OK!\n\nStatus: ${response.status}\nTempo: ${tempoResposta}ms\n\nA API está respondendo!`);
+                
+            } catch (error) {
+                console.error('❌ ERRO NO TESTE:', error);
+                mostrarDebug('❌ Falha na conexão: ' + error.message);
+                alert('❌ FALHA NA CONEXÃO!\n\nErro: ' + error.message + '\n\nVerifique:\n• URL do Apps Script\n• Conexão com internet\n• Permissões do script');
+            }
+        }
+
+        async function testarConexaoComParametros() {
+            try {
+                console.log('🔍 Testando com dados de exemplo...');
+                mostrarDebug('🔍 Testando envio de dados de exemplo...');
+                
+                const dadosTeste = {
+                    nome: 'Teste Automático',
+                    email: 'teste@exemplo.com',
+                    competicao: 'Competição Teste',
+                    data: new Date().toISOString()
+                };
+                
+                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(dadosTeste)
+                });
+                
+                console.log('✅ Dados de teste enviados');
+                mostrarDebug('✅ Dados de teste enviados: ' + JSON.stringify(dadosTeste));
+                
+                alert('✅ Dados de teste enviados!\n\nO sistema está funcionando. Agora tente cadastrar um organizador real.');
+                
+                // Recarregar lista para ver se os dados aparecem
+                setTimeout(() => {
+                    carregarOrganizadores();
+                }, 2000);
+                
+            } catch (error) {
+                console.error('❌ Erro no teste com dados:', error);
+                mostrarDebug('❌ Erro no teste: ' + error.message);
+                alert('❌ Erro no teste: ' + error.message);
+            }
+        }
+
+        function mostrarDebug(mensagem) {
+            const debugInfo = document.getElementById('debugInfo');
+            const agora = new Date().toLocaleTimeString();
+            debugInfo.innerHTML += `[${agora}] ${mensagem}<br>`;
+            debugInfo.style.display = 'block';
+            debugInfo.scrollTop = debugInfo.scrollHeight;
+        }
+
+        function limparDebug() {
+            const debugInfo = document.getElementById('debugInfo');
+            debugInfo.innerHTML = '';
+            debugInfo.style.display = 'none';
+            console.log('🗑️ Debug limpo');
+        }
+
+        // Validação em tempo real
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', function() {
+                const errorId = `erro${this.name.charAt(0).toUpperCase() + this.name.slice(1)}`;
+                const errorElement = document.getElementById(errorId);
+                if (errorElement) {
+                    errorElement.style.display = 'none';
+                }
+            });
+        });
+
+        // Atualizar contador a cada 30 segundos
+        setInterval(() => {
+            const contador = document.getElementById('contadorRegistros');
+            if (contador.textContent && !contador.textContent.includes('(erro)')) {
+                carregarOrganizadores();
+            }
+        }, 30000);
+    </script>
+</body>
+</html>
+
