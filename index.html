@@ -688,187 +688,159 @@
         }
 
         // =================================================================
-        // SISTEMA DE ENVIO DE EMAIL
-        // =================================================================
+// SISTEMA DE ENVIO DE EMAIL REAL
+// =================================================================
 
-        async function carregarOrganizadoresParaEmail() {
-            const select = document.getElementById('organizadorSelecionado');
-            
-            try {
-                // Tentar carregar da planilha do Google Sheets
-                const response = await fetch(`https://docs.google.com/spreadsheets/d/${PLANILHA_ORGANIZADORES_ID}/gviz/tq?tqx=out:json`);
-                const text = await response.text();
-                const json = JSON.parse(text.substring(47).slice(0, -2));
-                
-                const dadosPlanilha = json.table.rows.map(row => ({
-                    nome: row.c[0]?.v || '',
-                    email: row.c[1]?.v || '',
-                    competicao: row.c[2]?.v || ''
-                })).filter(org => org.email && org.nome);
-                
-                // Combinar com dados locais
-                const todosOrganizadores = [...organizadores, ...dadosPlanilha];
-                const organizadoresUnicos = Array.from(new Set(todosOrganizadores.map(org => org.email)))
-                    .map(email => todosOrganizadores.find(org => org.email === email));
-                
-                select.innerHTML = '<option value="">Selecione um organizador</option>';
-                
-                organizadoresUnicos.forEach(org => {
-                    const option = document.createElement('option');
-                    option.value = org.email;
-                    option.textContent = `${org.nome} - ${org.competicao} (${org.email})`;
-                    option.setAttribute('data-nome', org.nome);
-                    option.setAttribute('data-competicao', org.competicao);
-                    select.appendChild(option);
-                });
-                
-                if (organizadoresUnicos.length === 0) {
-                    select.innerHTML = '<option value="">Nenhum organizador cadastrado</option>';
-                }
-                
-                mostrarDebug(`✅ ${organizadoresUnicos.length} organizadores carregados para email`);
-                
-            } catch (error) {
-                console.error('❌ Erro ao carregar da planilha:', error);
-                mostrarDebug('❌ Erro ao carregar planilha, usando dados locais');
-                
-                // Usar apenas dados locais em caso de erro
-                select.innerHTML = '<option value="">Selecione um organizador</option>';
-                organizadores.forEach(org => {
-                    const option = document.createElement('option');
-                    option.value = org.email;
-                    option.textContent = `${org.nome} - ${org.competicao} (${org.email})`;
-                    option.setAttribute('data-nome', org.nome);
-                    option.setAttribute('data-competicao', org.competicao);
-                    select.appendChild(option);
-                });
-            }
-        }
-
-        function atualizarPreviaEmail() {
-            const select = document.getElementById('organizadorSelecionado');
-            const mensagem = document.getElementById('mensagemPersonalizada').value;
-            const previa = document.getElementById('previaEmail');
-            
-            const organizadorSelecionado = select.options[select.selectedIndex];
-            
-            if (!organizadorSelecionado || !organizadorSelecionado.value) {
-                previa.innerHTML = 'Selecione um organizador para ver a prévia do email.';
-                return;
+async function enviarEmail() {
+    const select = document.getElementById('organizadorSelecionado');
+    const mensagem = document.getElementById('mensagemPersonalizada').value;
+    const btnEnviar = document.getElementById('btnEnviarEmail');
+    const loading = document.getElementById('loadingEmail');
+    const status = document.getElementById('emailStatus');
+    
+    // Limpar status anterior
+    status.style.display = 'none';
+    document.getElementById('erroOrganizador').style.display = 'none';
+    
+    // Validar seleção
+    if (!select.value) {
+        document.getElementById('erroOrganizador').style.display = 'block';
+        return;
+    }
+    
+    const organizadorSelecionado = select.options[select.selectedIndex];
+    const nome = organizadorSelecionado.getAttribute('data-nome');
+    const competicao = organizadorSelecionado.getAttribute('data-competicao');
+    const email = organizadorSelecionado.value;
+    
+    btnEnviar.disabled = true;
+    loading.style.display = 'block';
+    
+    try {
+        // Dados para envio
+        const dadosEmail = {
+            destinatario: email,
+            nome: nome,
+            competicao: competicao,
+            mensagem: mensagem,
+            link: LINK_COORDENADORES
+        };
+        
+        console.log('📤 Enviando email real...', dadosEmail);
+        
+        // Enviar via Google Apps Script
+        const response = await fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                acao: 'enviarEmail',
+                dados: dadosEmail
+            })
+        });
+        
+        const resultado = await response.json();
+        
+        if (resultado.success) {
+            // Marcar como enviado no localStorage
+            const organizadorIndex = organizadores.findIndex(org => org.email === email);
+            if (organizadorIndex !== -1) {
+                organizadores[organizadorIndex].linkEnviado = true;
+                organizadores[organizadorIndex].dataEnvioLink = new Date().toISOString();
+                localStorage.setItem('organizadores', JSON.stringify(organizadores));
             }
             
-            const nome = organizadorSelecionado.getAttribute('data-nome');
-            const competicao = organizadorSelecionado.getAttribute('data-competicao');
-            const email = organizadorSelecionado.value;
-            
-            const conteudoEmail = `
-                <strong>Para:</strong> ${nome} &lt;${email}&gt;<br>
-                <strong>Assunto:</strong> Link do Sistema de Cadastro de Coordenadores - ${competicao}<br><br>
-                <strong>Mensagem:</strong><br>
-                ${mensagem}<br><br>
-                <strong>Link:</strong> ${LINK_COORDENADORES}<br><br>
-                <em>Este é um email automático do sistema de cadastro de organizadores.</em>
+            // Mostrar sucesso
+            status.className = 'email-status email-success';
+            status.innerHTML = `
+                ✅ Email enviado com sucesso para ${nome}!<br>
+                <small>O organizador recebeu o link do sistema de coordenadores.</small>
+                <br><small><strong>Email:</strong> ${email}</small>
             `;
+            status.style.display = 'block';
             
-            previa.innerHTML = conteudoEmail;
+            mostrarDebug(`✅ Email enviado para: ${email}`);
+            
+            // Atualizar lista
+            carregarOrganizadores();
+            
+        } else {
+            throw new Error(resultado.message || 'Erro desconhecido no envio');
         }
+        
+    } catch (error) {
+        // Mostrar erro
+        status.className = 'email-status email-error';
+        status.innerHTML = `
+            ❌ Erro ao enviar email: ${error.message}<br>
+            <small>Tente novamente ou entre em contato com o suporte.</small>
+        `;
+        status.style.display = 'block';
+        
+        mostrarDebug(`❌ Erro no envio de email: ${error.message}`);
+        
+        // Tentar método alternativo
+        await tentarEnvioAlternativo(email, nome, competicao, mensagem);
+    } finally {
+        btnEnviar.disabled = false;
+        loading.style.display = 'none';
+    }
+}
 
-        async function enviarEmail() {
-            const select = document.getElementById('organizadorSelecionado');
-            const mensagem = document.getElementById('mensagemPersonalizada').value;
-            const btnEnviar = document.getElementById('btnEnviarEmail');
-            const loading = document.getElementById('loadingEmail');
-            const status = document.getElementById('emailStatus');
-            
-            // Limpar status anterior
-            status.style.display = 'none';
-            
-            // Validar seleção
-            if (!select.value) {
-                document.getElementById('erroOrganizador').style.display = 'block';
-                return;
-            }
-            
-            const organizadorSelecionado = select.options[select.selectedIndex];
-            const nome = organizadorSelecionado.getAttribute('data-nome');
-            const competicao = organizadorSelecionado.getAttribute('data-competicao');
-            const email = organizadorSelecionado.value;
-            
-            btnEnviar.disabled = true;
-            loading.style.display = 'block';
-            
-            try {
-                // Simular envio de email (substituir por serviço real como EmailJS, SendGrid, etc.)
-                await simularEnvioEmail(nome, email, competicao, mensagem);
-                
-                // Marcar como enviado no localStorage
-                const organizadorIndex = organizadores.findIndex(org => org.email === email);
-                if (organizadorIndex !== -1) {
-                    organizadores[organizadorIndex].linkEnviado = true;
-                    organizadores[organizadorIndex].dataEnvioLink = new Date().toISOString();
-                    localStorage.setItem('organizadores', JSON.stringify(organizadores));
-                }
-                
-                // Mostrar sucesso
-                status.className = 'email-status email-success';
-                status.innerHTML = `
-                    ✅ Email enviado com sucesso para ${nome}!<br>
-                    <small>O organizador recebeu o link do sistema de coordenadores.</small>
-                `;
-                status.style.display = 'block';
-                
-                mostrarDebug(`✅ Email simulado enviado para: ${email}`);
-                
-                // Atualizar lista
-                carregarOrganizadores();
-                
-            } catch (error) {
-                // Mostrar erro
-                status.className = 'email-status email-error';
-                status.innerHTML = `
-                    ❌ Erro ao enviar email: ${error.message}<br>
-                    <small>Tente novamente ou entre em contato com o suporte.</small>
-                `;
-                status.style.display = 'block';
-                
-                mostrarDebug(`❌ Erro no envio de email: ${error.message}`);
-            } finally {
-                btnEnviar.disabled = false;
-                loading.style.display = 'none';
-            }
-        }
+// Método alternativo caso o primeiro falhe
+async function tentarEnvioAlternativo(email, nome, competicao, mensagem) {
+    try {
+        mostrarDebug('🔄 Tentando método alternativo de envio...');
+        
+        // Criar link mailto como fallback
+        const assunto = `Link do Sistema de Cadastro de Coordenadores - ${competicao}`;
+        const corpo = `${mensagem}\n\n🔗 Link: ${LINK_COORDENADORES}\n\nAtenciosamente,\nSistema de Cadastro de Competições`;
+        
+        const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(assunto)}&body=${encodeURIComponent(corpo)}`;
+        
+        // Oferecer opção ao usuário
+        const status = document.getElementById('emailStatus');
+        status.innerHTML += `
+            <br><br>
+            <strong>💡 Alternativa:</strong> 
+            <a href="${mailtoLink}" target="_blank" style="color: #007bff; text-decoration: underline;">
+                Clique aqui para abrir seu cliente de email
+            </a>
+        `;
+        
+        mostrarDebug(`📧 Link mailto criado: ${mailtoLink}`);
+        
+    } catch (error) {
+        mostrarDebug(`❌ Fallback também falhou: ${error.message}`);
+    }
+}
 
-        function simularEnvioEmail(nome, email, competicao, mensagem) {
-            return new Promise((resolve, reject) => {
-                // Simular delay de rede
-                setTimeout(() => {
-                    // Simular 90% de sucesso
-                    if (Math.random() > 0.1) {
-                        console.log(`📧 Email simulado enviado para ${nome} (${email})`);
-                        console.log(`🏆 Competição: ${competicao}`);
-                        console.log(`💬 Mensagem: ${mensagem}`);
-                        console.log(`🔗 Link: ${LINK_COORDENADORES}`);
-                        resolve();
-                    } else {
-                        reject(new Error('Falha na conexão com o servidor de email'));
-                    }
-                }, 2000);
-            });
-        }
+// Atualizar a função de teste de email
+function testarEmail() {
+    // Preencher com dados de teste
+    if (organizadores.length > 0) {
+        const select = document.getElementById('organizadorSelecionado');
+        
+        // Tentar selecionar um organizador que ainda não recebeu link
+        const organizadorNaoEnviado = organizadores.find(org => !org.linkEnviado);
+        const organizadorParaTeste = organizadorNaoEnviado || organizadores[0];
+        
+        select.value = organizadorParaTeste.email;
+        document.getElementById('mensagemPersonalizada').value = `Olá ${organizadorParaTeste.nome}!
 
-        function testarEmail() {
-            // Preencher com dados de teste
-            if (organizadores.length > 0) {
-                const select = document.getElementById('organizadorSelecionado');
-                select.value = organizadores[0].email;
-                document.getElementById('mensagemPersonalizada').value = 'Olá! Este é um teste do sistema de envio de links. Segue o link para cadastro de coordenadores:';
-                atualizarPreviaEmail();
-                mostrarDebug('🧪 Dados de teste preenchidos para email');
-                alert('✅ Dados de teste preenchidos! Clique em "Enviar Link por Email" para testar.');
-            } else {
-                alert('❌ Nenhum organizador cadastrado para testar. Cadastre um organizador primeiro.');
-            }
-        }
+Este é um teste do sistema de envio de links para a competição "${organizadorParaTeste.competicao}".
+
+Segue o link para cadastro de coordenadores:`;
+        
+        atualizarPreviaEmail();
+        mostrarDebug('🧪 Dados de teste preenchidos para email');
+        
+        alert(`✅ Dados de teste preenchidos para ${organizadorParaTeste.nome}!\n\nClique em "Enviar Link por Email" para testar.`);
+    } else {
+        alert('❌ Nenhum organizador cadastrado para testar. Cadastre um organizador primeiro.');
+    }
+}
 
         // =================================================================
         // FUNÇÕES UTILITÁRIAS
@@ -919,3 +891,4 @@
     </script>
 </body>
 </html>
+
