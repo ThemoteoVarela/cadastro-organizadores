@@ -1,9 +1,8 @@
-<!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastro de Coordenadores - Acesso Restrito</title>
+    <title>Cadastro de Organizadores - Envio de Links</title>
     <style>
         * {
             margin: 0;
@@ -62,7 +61,7 @@
             font-size: 14px;
         }
 
-        input, select {
+        input, select, textarea {
             width: 100%;
             padding: 12px 15px;
             border: 2px solid #e1e1e1;
@@ -72,7 +71,7 @@
             background: white;
         }
 
-        input:focus, select:focus {
+        input:focus, select:focus, textarea:focus {
             outline: none;
             border-color: #667eea;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
@@ -134,6 +133,10 @@
             background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
         }
 
+        .btn-email {
+            background: linear-gradient(135deg, #6f42c1 0%, #e83e8c 100%);
+        }
+
         .success-message {
             background: #d4edda;
             color: #155724;
@@ -159,13 +162,13 @@
             font-style: italic;
         }
 
-        .coordenadores-cadastrados {
+        .organizadores-cadastrados {
             margin-top: 30px;
             padding-top: 20px;
             border-top: 2px solid #e1e1e1;
         }
 
-        .coordenador-item {
+        .organizador-item {
             background: #f8f9fa;
             padding: 15px;
             border-radius: 8px;
@@ -173,12 +176,12 @@
             border-left: 4px solid #667eea;
         }
 
-        .coordenador-item h3 {
+        .organizador-item h3 {
             color: #333;
             margin-bottom: 5px;
         }
 
-        .coordenador-item p {
+        .organizador-item p {
             color: #666;
             font-size: 14px;
             margin-bottom: 3px;
@@ -191,16 +194,6 @@
             font-size: 12px;
             font-weight: 600;
             margin-left: 8px;
-        }
-
-        .badge-idade {
-            background: #e7f3ff;
-            color: #0066cc;
-        }
-
-        .badge-sexo {
-            background: #fff0f0;
-            color: #cc0000;
         }
 
         .test-buttons {
@@ -231,75 +224,6 @@
             overflow-y: auto;
         }
 
-        .categoria-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
-        .gerenciador-categorias {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            margin: 20px 0;
-            border: 2px solid #e9ecef;
-        }
-
-        .categorias-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-top: 15px;
-        }
-
-        .categoria-lista {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid #dee2e6;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-
-        .categoria-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px;
-            margin-bottom: 5px;
-            background: #f8f9fa;
-            border-radius: 5px;
-            border-left: 3px solid #667eea;
-        }
-
-        .categoria-item:hover {
-            background: #e9ecef;
-        }
-
-        .categoria-botoes {
-            display: flex;
-            gap: 5px;
-        }
-
-        .categoria-botoes button {
-            padding: 4px 8px;
-            font-size: 12px;
-        }
-
-        .input-group {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-
-        .input-group input {
-            flex: 1;
-        }
-
-        .categoria-section {
-            margin-bottom: 20px;
-        }
-
         .tab-container {
             margin: 20px 0;
         }
@@ -327,17 +251,6 @@
             font-weight: 600;
         }
 
-        .tab-button.locked {
-            color: #999;
-            position: relative;
-        }
-
-        .tab-button.locked::after {
-            content: "🔒";
-            margin-left: 5px;
-            font-size: 12px;
-        }
-
         .tab-content {
             display: none;
         }
@@ -346,52 +259,34 @@
             display: block;
         }
 
-        .login-container {
+        .email-container {
             background: #f8f9fa;
-            padding: 30px;
+            padding: 20px;
             border-radius: 10px;
-            text-align: center;
             margin: 20px 0;
-            border: 2px solid #dee2e6;
+            border: 2px solid #e9ecef;
         }
 
-        .login-message {
-            background: #fff3cd;
-            color: #856404;
+        .email-preview {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            margin-top: 15px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .link-coordenadores {
+            background: #e7f3ff;
             padding: 10px;
             border-radius: 5px;
             margin: 10px 0;
-            display: none;
-        }
-
-        .access-denied {
-            background: #f8d7da;
-            color: #721c24;
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-            margin: 20px 0;
-        }
-
-        .admin-badge {
-            background: #28a745;
-            color: white;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-            margin-left: 10px;
+            word-break: break-all;
+            border-left: 4px solid #667eea;
         }
 
         @media (max-width: 768px) {
-            .categoria-group,
-            .categorias-container {
-                grid-template-columns: 1fr;
-            }
-            
-            .input-group {
-                flex-direction: column;
-            }
-            
             .tab-buttons {
                 flex-direction: column;
             }
@@ -400,68 +295,64 @@
                 text-align: center;
             }
         }
+
+        .email-status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            text-align: center;
+            display: none;
+        }
+
+        .email-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .email-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>⚽ Cadastro de Coordenadores 
-            <span id="adminStatus" class="admin-badge" style="display: none;">🔓 Administrador</span>
-        </h1>
+        <h1>📋 Cadastro de Organizadores - Sistema Completo</h1>
         
         <div class="status-info">
-            <span id="accessStatus">📋 Sistema de cadastro - Acesso público</span>
-        </div>
-
-        <!-- CONTAINER DE LOGIN -->
-        <div id="loginContainer" class="login-container">
-            <h2>🔐 Acesso Restrito</h2>
-            <p>Para acessar as funções administrativas, digite a senha:</p>
-            
-            <div class="form-group" style="max-width: 300px; margin: 20px auto;">
-                <input 
-                    type="password" 
-                    id="senhaAcesso" 
-                    placeholder="Digite a senha de acesso"
-                >
-                <div class="error" id="erroSenha" style="text-align: center;"></div>
-            </div>
-            
-            <button onclick="verificarSenha()" class="btn-success">🔓 Acessar Área Administrativa</button>
-            
-            <div class="login-message" id="loginMessage">
-                <!-- Mensagens de login serão exibidas aqui -->
-            </div>
+            🚀 Sistema integrado com envio de links para coordenadores
         </div>
 
         <div class="tab-container">
             <div class="tab-buttons">
                 <button class="tab-button active" onclick="abrirTab('cadastro')">📝 Cadastro</button>
-                <button class="tab-button locked" onclick="abrirTabComSenha('categorias')">⚙️ Gerenciar Categorias</button>
-                <button class="tab-button locked" onclick="abrirTabComSenha('lista')">📊 Lista de Coordenadores</button>
-                <button class="tab-button" onclick="abrirTab('sobre')">ℹ️ Sobre</button>
+                <button class="tab-button" onclick="abrirTab('envio')">📧 Enviar Links</button>
+                <button class="tab-button" onclick="abrirTab('lista')">📊 Lista de Organizadores</button>
             </div>
 
-            <!-- ABA CADASTRO (SEMPRE ACESSÍVEL) -->
+            <!-- ABA CADASTRO -->
             <div id="cadastro" class="tab-content active">
                 <form id="cadastroForm">
                     <div class="form-group">
-                        <label for="nomeCoordenador">Nome do Coordenador *</label>
+                        <label for="nomeOrganizador">Nome do Organizador *</label>
                         <input 
                             type="text" 
-                            id="nomeCoordenador" 
-                            name="nomeCoordenador" 
-                            placeholder="Digite o nome completo do coordenador"
+                            id="nomeOrganizador" 
+                            name="nomeOrganizador" 
+                            placeholder="Digite o nome completo do organizador"
                             required
                         >
-                        <div class="error" id="erroNome">Por favor, digite o nome do coordenador</div>
+                        <div class="error" id="erroNome">Por favor, digite o nome do organizador</div>
                     </div>
 
                     <div class="form-group">
-                        <label for="emailCoordenador">E-mail do Coordenador *</label>
+                        <label for="emailOrganizador">E-mail do Organizador *</label>
                         <input 
                             type="email" 
-                            id="emailCoordenador" 
-                            name="emailCoordenador" 
+                            id="emailOrganizador" 
+                            name="emailOrganizador" 
                             placeholder="exemplo@email.com"
                             required
                         >
@@ -469,39 +360,18 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="nomeEquipe">Nome da Equipe *</label>
+                        <label for="nomeCompeticao">Nome da Competição *</label>
                         <input 
                             type="text" 
-                            id="nomeEquipe" 
-                            name="nomeEquipe" 
-                            placeholder="Digite o nome da equipe"
+                            id="nomeCompeticao" 
+                            name="nomeCompeticao" 
+                            placeholder="Digite o nome da competição"
                             required
                         >
-                        <div class="error" id="erroEquipe">Por favor, digite o nome da equipe</div>
+                        <div class="error" id="erroCompeticao">Por favor, digite o nome da competição</div>
                     </div>
 
-                    <div class="form-group">
-                        <label>Categoria</label>
-                        <div class="categoria-group">
-                            <div>
-                                <label for="categoriaIdade">Idade *</label>
-                                <select id="categoriaIdade" name="categoriaIdade" required>
-                                    <option value="">Selecione a categoria</option>
-                                </select>
-                                <div class="error" id="erroIdade">Por favor, selecione a categoria de idade</div>
-                            </div>
-
-                            <div>
-                                <label for="categoriaSexo">Sexo *</label>
-                                <select id="categoriaSexo" name="categoriaSexo" required>
-                                    <option value="">Selecione o sexo</option>
-                                </select>
-                                <div class="error" id="erroSexo">Por favor, selecione a categoria de sexo</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <button type="submit" id="submitBtn" class="btn-full">Cadastrar Coordenador</button>
+                    <button type="submit" id="submitBtn" class="btn-full">Cadastrar Organizador</button>
                     <div class="loading" id="loading">⏳ Salvando dados...</div>
                 </form>
 
@@ -515,128 +385,82 @@
                 </div>
 
                 <div class="success-message" id="successMessage">
-                    ✅ Coordenador cadastrado com sucesso!
+                    ✅ Organizador cadastrado com sucesso!
                 </div>
             </div>
 
-            <!-- ABA CATEGORIAS (PROTEGIDA) -->
-            <div id="categorias" class="tab-content">
-                <div id="acessoNegadoCategorias" class="access-denied">
-                    <h3>🔐 Acesso Restrito</h3>
-                    <p>Esta área é restrita para administradores.</p>
-                    <p>Digite a senha no campo acima para acessar.</p>
-                </div>
+            <!-- ABA ENVIO DE LINKS -->
+            <div id="envio" class="tab-content">
+                <div class="email-container">
+                    <h2>📧 Enviar Link para Coordenadores</h2>
+                    <p>Selecione um organizador cadastrado para enviar o link do sistema de cadastro de coordenadores.</p>
 
-                <div id="conteudoCategorias" style="display: none;">
-                    <div class="gerenciador-categorias">
-                        <h2>⚙️ Gerenciar Categorias</h2>
-                        
-                        <div class="categorias-container">
-                            <!-- CATEGORIAS IDADE -->
-                            <div class="categoria-section">
-                                <h3>📅 Categorias de Idade</h3>
-                                <div class="input-group">
-                                    <input type="text" id="novaCategoriaIdade" placeholder="Nova categoria de idade (ex: Sub-13)">
-                                    <button onclick="adicionarCategoria('idade')" class="btn-success">➕ Adicionar</button>
-                                </div>
-                                <div id="listaCategoriasIdade" class="categoria-lista">
-                                    <!-- Lista de categorias de idade -->
-                                </div>
-                            </div>
+                    <div class="form-group">
+                        <label for="organizadorSelecionado">Selecionar Organizador *</label>
+                        <select id="organizadorSelecionado" required>
+                            <option value="">Carregando organizadores...</option>
+                        </select>
+                        <div class="error" id="erroOrganizador">Por favor, selecione um organizador</div>
+                    </div>
 
-                            <!-- CATEGORIAS SEXO -->
-                            <div class="categoria-section">
-                                <h3>👥 Categorias de Sexo</h3>
-                                <div class="input-group">
-                                    <input type="text" id="novaCategoriaSexo" placeholder="Nova categoria de sexo (ex: Misto)">
-                                    <button onclick="adicionarCategoria('sexo')" class="btn-success">➕ Adicionar</button>
-                                </div>
-                                <div id="listaCategoriasSexo" class="categoria-lista">
-                                    <!-- Lista de categorias de sexo -->
-                                </div>
-                            </div>
-                        </div>
+                    <div class="form-group">
+                        <label for="mensagemPersonalizada">Mensagem Personalizada (Opcional)</label>
+                        <textarea 
+                            id="mensagemPersonalizada" 
+                            rows="4" 
+                            placeholder="Digite uma mensagem personalizada para o organizador..."
+                        >Olá! Segue o link para o sistema de cadastro de coordenadores da sua competição:</textarea>
+                    </div>
 
-                        <div style="text-align: center; margin-top: 20px;">
-                            <button onclick="restaurarCategoriasPadrao()" class="btn-test btn-warning">
-                                🔄 Restaurar Padrão
-                            </button>
-                            <button onclick="exportarCategorias()" class="btn-test btn-info">
-                                📤 Exportar Categorias
-                            </button>
-                            <label class="btn-test btn-info" style="cursor: pointer;">
-                                📥 Importar Categorias
-                                <input type="file" id="importarCategorias" accept=".json" style="display: none;" onchange="importarCategorias(event)">
-                            </label>
+                    <div class="link-coordenadores">
+                        <strong>🔗 Link do Sistema de Coordenadores:</strong><br>
+                        <span id="linkSistema">https://themoteovarela.github.io/cadastro-coordenadores/</span>
+                    </div>
+
+                    <div class="email-preview">
+                        <strong>📋 Prévia do Email:</strong><br>
+                        <div id="previaEmail" style="margin-top: 10px;">
+                            Carregando prévia...
                         </div>
                     </div>
+
+                    <button onclick="enviarEmail()" class="btn-full btn-email" id="btnEnviarEmail">
+                        📤 Enviar Link por Email
+                    </button>
+                    <div class="loading" id="loadingEmail">⏳ Enviando email...</div>
+
+                    <div class="email-status" id="emailStatus">
+                        <!-- Status do email será exibido aqui -->
+                    </div>
+                </div>
+
+                <div class="test-buttons">
+                    <button onclick="carregarOrganizadores()" class="btn-test btn-success">
+                        🔄 Atualizar Lista
+                    </button>
+                    <button onclick="testarEmail()" class="btn-test btn-warning">
+                        🧪 Testar Email
+                    </button>
                 </div>
             </div>
 
-            <!-- ABA LISTA (PROTEGIDA) -->
+            <!-- ABA LISTA -->
             <div id="lista" class="tab-content">
-                <div id="acessoNegadoLista" class="access-denied">
-                    <h3>🔐 Acesso Restrito</h3>
-                    <p>Esta área é restrita para administradores.</p>
-                    <p>Digite a senha no campo acima para acessar.</p>
-                </div>
-
-                <div id="conteudoLista" style="display: none;">
-                    <div class="coordenadores-cadastrados">
-                        <h2>📊 Coordenadores Cadastrados</h2>
-                        <div style="text-align: center; margin-bottom: 15px;">
-                            <button onclick="atualizarListaCoordenadores()" class="btn-test">
-                                🔄 Atualizar Lista
-                            </button>
-                            <span id="contadorRegistros" style="margin-left: 10px; color: #666;">
-                                (0 registros)
-                            </span>
-                        </div>
-                        <div id="listaCoordenadores">
-                            <p style="text-align: center; color: #666;">
-                                Nenhum coordenador cadastrado ainda.
-                            </p>
-                        </div>
-                        
-                        <div style="text-align: center; margin-top: 20px;">
-                            <button onclick="exportarDados()" class="btn-test btn-info">
-                                📤 Exportar Dados
-                            </button>
-                            <label class="btn-test btn-info" style="cursor: pointer;">
-                                📥 Importar Dados
-                                <input type="file" id="importarDados" accept=".json" style="display: none;" onchange="importarDados(event)">
-                            </label>
-                            <button onclick="limparTodosDados()" class="btn-test btn-danger">
-                                🗑️ Limpar Todos os Dados
-                            </button>
-                        </div>
+                <div class="organizadores-cadastrados">
+                    <h2>📊 Organizadores Cadastrados</h2>
+                    <div style="text-align: center; margin-bottom: 15px;">
+                        <button onclick="carregarOrganizadores()" class="btn-test">
+                            🔄 Atualizar Lista
+                        </button>
+                        <span id="contadorRegistros" style="margin-left: 10px; color: #666;">
+                            (0 registros)
+                        </span>
                     </div>
-                </div>
-            </div>
-
-            <!-- ABA SOBRE -->
-            <div id="sobre" class="tab-content">
-                <div class="status-info">
-                    <h3>ℹ️ Sobre o Sistema</h3>
-                    <p><strong>Sistema de Cadastro de Coordenadores de Equipes Esportivas</strong></p>
-                </div>
-                
-                <div class="form-group">
-                    <h4>🎯 Funcionalidades:</h4>
-                    <ul style="margin-left: 20px; margin-bottom: 15px;">
-                        <li><strong>Cadastro Público:</strong> Qualquer pessoa pode cadastrar coordenadores</li>
-                        <li><strong>Área Administrativa:</strong> Acesso restrito com senha para gerenciamento</li>
-                        <li><strong>Categorias Personalizáveis:</strong> Idade e sexo customizáveis</li>
-                        <li><strong>Armazenamento Local:</strong> Dados salvos no navegador</li>
-                        <li><strong>Exportação/Importação:</strong> Backup dos dados</li>
-                    </ul>
-
-                    <h4>🔐 Acesso Administrativo:</h4>
-                    <p>Para acessar as funções administrativas (gerenciar categorias e visualizar lista completa), 
-                       digite a senha no campo no topo da página.</p>
-
-                    <h4>📊 Estatísticas:</h4>
-                    <p id="estatisticas">Carregando estatísticas...</p>
+                    <div id="listaOrganizadores">
+                        <p style="text-align: center; color: #666;">
+                            Nenhum organizador cadastrado ainda.
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -648,157 +472,14 @@
 
     <script>
         // =================================================================
-        // CONFIGURAÇÃO INICIAL E SISTEMA DE SENHA
+        // CONFIGURAÇÃO
         // =================================================================
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwqA1rvkw3YW3sx4S4_-Z6hc8oF8jEHosQg7TyPYrWeOgWIqyuibpRRyIITqVEfI85O/exec';
-        
-        // SENHA PADRÃO - VOCÊ PODE ALTERAR ESTA SENHA
-        const SENHA_ADMIN = "admin123";
-        
-        // Array para armazenar os coordenadores localmente
-        let coordenadores = JSON.parse(localStorage.getItem('coordenadores')) || [];
-        
-        // Categorias padrão
-        const categoriasPadrao = {
-            idade: [
-                "Sub-13 (até 13 anos)",
-                "Sub-15 (14-15 anos)", 
-                "Sub-17 (16-17 anos)",
-                "Sub-20 (18-20 anos)",
-                "Adulto (acima de 20 anos)",
-                "Master (acima de 35 anos)",
-                "Veterano (acima de 45 anos)"
-            ],
-            sexo: [
-                "Masculino",
-                "Feminino", 
-                "Misto"
-            ]
-        };
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzYj4s9t77KGm-AguvnTpH_b9BOdhfcdekNv3wDsTLNq8Wfe2TflpQmOVvW27FDmztcCg/exec';
+        const LINK_COORDENADORES = 'https://themoteovarela.github.io/cadastro-coordenadores/';
+        const PLANILHA_ORGANIZADORES_ID = '1rGQmU_FgsQEu8qWqz5KTseKpALVYTQfx9kJ0lRkYuNw';
 
-        // Carregar categorias do localStorage ou usar padrão
-        let categorias = JSON.parse(localStorage.getItem('categorias')) || JSON.parse(JSON.stringify(categoriasPadrao));
-
-        // Estado de autenticação
-        let usuarioAutenticado = false;
-
-        // =================================================================
-        // SISTEMA DE AUTENTICAÇÃO
-        // =================================================================
-
-        function verificarSenha() {
-            const senhaDigitada = document.getElementById('senhaAcesso').value;
-            const loginMessage = document.getElementById('loginMessage');
-            const erroSenha = document.getElementById('erroSenha');
-
-            // Limpar mensagens anteriores
-            loginMessage.style.display = 'none';
-            erroSenha.style.display = 'none';
-
-            if (!senhaDigitada) {
-                erroSenha.textContent = 'Por favor, digite a senha';
-                erroSenha.style.display = 'block';
-                return;
-            }
-
-            if (senhaDigitada === SENHA_ADMIN) {
-                usuarioAutenticado = true;
-                atualizarInterfaceAutenticacao();
-                
-                loginMessage.textContent = '✅ Acesso concedido! Área administrativa liberada.';
-                loginMessage.style.background = '#d4edda';
-                loginMessage.style.color = '#155724';
-                loginMessage.style.display = 'block';
-                
-                document.getElementById('senhaAcesso').value = '';
-                mostrarDebug('🔓 Usuário autenticado com sucesso');
-                
-                // Esconder container de login após 2 segundos
-                setTimeout(() => {
-                    document.getElementById('loginContainer').style.display = 'none';
-                }, 2000);
-                
-            } else {
-                erroSenha.textContent = '❌ Senha incorreta. Tente novamente.';
-                erroSenha.style.display = 'block';
-                mostrarDebug('❌ Tentativa de acesso com senha incorreta');
-            }
-        }
-
-        function atualizarInterfaceAutenticacao() {
-            // Atualizar status
-            document.getElementById('accessStatus').textContent = '🔓 Sistema - Acesso administrativo';
-            document.getElementById('adminStatus').style.display = 'inline-block';
-            
-            // Atualizar botões das abas
-            document.querySelectorAll('.tab-button.locked').forEach(botao => {
-                botao.classList.remove('locked');
-                botao.innerHTML = botao.innerHTML.replace('🔒', '🔓');
-            });
-            
-            // Mostrar conteúdo das abas protegidas
-            document.getElementById('conteudoCategorias').style.display = 'block';
-            document.getElementById('acessoNegadoCategorias').style.display = 'none';
-            
-            document.getElementById('conteudoLista').style.display = 'block';
-            document.getElementById('acessoNegadoLista').style.display = 'none';
-            
-            // Atualizar lista se estiver na aba de lista
-            if (document.getElementById('lista').classList.contains('active')) {
-                atualizarListaCoordenadores();
-            }
-        }
-
-        function abrirTabComSenha(tabName) {
-            if (!usuarioAutenticado) {
-                mostrarMensagemAcessoNegado();
-                return;
-            }
-            abrirTab(tabName);
-        }
-
-        function mostrarMensagemAcessoNegado() {
-            const loginMessage = document.getElementById('loginMessage');
-            loginMessage.textContent = '🔐 Área restrita! Digite a senha para acessar.';
-            loginMessage.style.background = '#fff3cd';
-            loginMessage.style.color = '#856404';
-            loginMessage.style.display = 'block';
-            
-            // Mostrar container de login se estiver escondido
-            document.getElementById('loginContainer').style.display = 'block';
-            
-            // Focar no campo de senha
-            document.getElementById('senhaAcesso').focus();
-        }
-
-        function logout() {
-            usuarioAutenticado = false;
-            document.getElementById('loginContainer').style.display = 'block';
-            document.getElementById('adminStatus').style.display = 'none';
-            document.getElementById('accessStatus').textContent = '📋 Sistema de cadastro - Acesso público';
-            
-            // Rebloquear abas
-            document.querySelectorAll('.tab-button').forEach((botao, index) => {
-                if (index > 0) { // Manter apenas a primeira aba desbloqueada
-                    botao.classList.add('locked');
-                    if (!botao.innerHTML.includes('🔒')) {
-                        botao.innerHTML += ' 🔒';
-                    }
-                }
-            });
-            
-            // Esconder conteúdo protegido
-            document.getElementById('conteudoCategorias').style.display = 'none';
-            document.getElementById('acessoNegadoCategorias').style.display = 'block';
-            
-            document.getElementById('conteudoLista').style.display = 'none';
-            document.getElementById('acessoNegadoLista').style.display = 'block';
-            
-            // Voltar para aba de cadastro
-            abrirTab('cadastro');
-            
-            mostrarDebug('🔒 Logout realizado');
-        }
+        // Array para armazenar os organizadores
+        let organizadores = JSON.parse(localStorage.getItem('organizadores')) || [];
 
         // =================================================================
         // FUNÇÕES DE GERENCIAMENTO DE ABAS
@@ -822,194 +503,12 @@
             event.currentTarget.classList.add('active');
             
             // Ações específicas por aba
-            if (tabName === 'lista' && usuarioAutenticado) {
-                atualizarListaCoordenadores();
-            } else if (tabName === 'sobre') {
-                atualizarEstatisticas();
+            if (tabName === 'envio') {
+                carregarOrganizadoresParaEmail();
+                atualizarPreviaEmail();
+            } else if (tabName === 'lista') {
+                carregarOrganizadores();
             }
-        }
-
-        function atualizarEstatisticas() {
-            const statsElement = document.getElementById('estatisticas');
-            const totalCoordenadores = coordenadores.length;
-            const categoriasIdade = categorias.idade.length;
-            const categoriasSexo = categorias.sexo.length;
-            
-            statsElement.innerHTML = `
-                <strong>Total de Coordenadores Cadastrados:</strong> ${totalCoordenadores}<br>
-                <strong>Categorias de Idade Disponíveis:</strong> ${categoriasIdade}<br>
-                <strong>Categorias de Sexo Disponíveis:</strong> ${categoriasSexo}<br>
-                <strong>Status de Acesso:</strong> ${usuarioAutenticado ? '🔓 Administrador' : '🔒 Público'}
-            `;
-        }
-
-        // =================================================================
-        // FUNÇÕES DE GERENCIAMENTO DE CATEGORIAS
-        // =================================================================
-
-        function salvarCategorias() {
-            localStorage.setItem('categorias', JSON.stringify(categorias));
-            atualizarSelectsCategorias();
-            if (usuarioAutenticado) {
-                atualizarListasCategorias();
-            }
-            mostrarDebug('✅ Categorias salvas');
-        }
-
-        function adicionarCategoria(tipo) {
-            if (!usuarioAutenticado) {
-                mostrarMensagemAcessoNegado();
-                return;
-            }
-
-            const input = tipo === 'idade' ? 
-                document.getElementById('novaCategoriaIdade') : 
-                document.getElementById('novaCategoriaSexo');
-            
-            const novaCategoria = input.value.trim();
-            
-            if (!novaCategoria) {
-                alert('Por favor, digite um nome para a categoria!');
-                return;
-            }
-            
-            if (categorias[tipo].includes(novaCategoria)) {
-                alert('Esta categoria já existe!');
-                return;
-            }
-            
-            categorias[tipo].push(novaCategoria);
-            input.value = '';
-            salvarCategorias();
-            mostrarDebug(`✅ Nova categoria ${tipo} adicionada: ${novaCategoria}`);
-        }
-
-        function removerCategoria(tipo, categoria) {
-            if (!usuarioAutenticado) {
-                mostrarMensagemAcessoNegado();
-                return;
-            }
-
-            if (confirm(`Tem certeza que deseja remover a categoria "${categoria}"?`)) {
-                categorias[tipo] = categorias[tipo].filter(cat => cat !== categoria);
-                salvarCategorias();
-                mostrarDebug(`🗑️ Categoria ${tipo} removida: ${categoria}`);
-            }
-        }
-
-        function restaurarCategoriasPadrao() {
-            if (!usuarioAutenticado) {
-                mostrarMensagemAcessoNegado();
-                return;
-            }
-
-            if (confirm('Tem certeza que deseja restaurar as categorias padrão? Isso removerá todas as categorias personalizadas.')) {
-                categorias = JSON.parse(JSON.stringify(categoriasPadrao));
-                salvarCategorias();
-                mostrarDebug('🔄 Categorias padrão restauradas');
-            }
-        }
-
-        function atualizarSelectsCategorias() {
-            // Atualizar select de idade
-            const selectIdade = document.getElementById('categoriaIdade');
-            selectIdade.innerHTML = '<option value="">Selecione a categoria</option>';
-            categorias.idade.forEach(categoria => {
-                const option = document.createElement('option');
-                option.value = categoria;
-                option.textContent = categoria;
-                selectIdade.appendChild(option);
-            });
-            
-            // Atualizar select de sexo
-            const selectSexo = document.getElementById('categoriaSexo');
-            selectSexo.innerHTML = '<option value="">Selecione o sexo</option>';
-            categorias.sexo.forEach(categoria => {
-                const option = document.createElement('option');
-                option.value = categoria;
-                option.textContent = categoria;
-                selectSexo.appendChild(option);
-            });
-        }
-
-        function atualizarListasCategorias() {
-            if (!usuarioAutenticado) return;
-
-            // Atualizar lista de categorias de idade
-            const listaIdade = document.getElementById('listaCategoriasIdade');
-            listaIdade.innerHTML = '';
-            categorias.idade.forEach(categoria => {
-                const item = document.createElement('div');
-                item.className = 'categoria-item';
-                item.innerHTML = `
-                    <span>${categoria}</span>
-                    <div class="categoria-botoes">
-                        <button onclick="removerCategoria('idade', '${categoria}')" class="btn-danger">🗑️</button>
-                    </div>
-                `;
-                listaIdade.appendChild(item);
-            });
-            
-            // Atualizar lista de categorias de sexo
-            const listaSexo = document.getElementById('listaCategoriasSexo');
-            listaSexo.innerHTML = '';
-            categorias.sexo.forEach(categoria => {
-                const item = document.createElement('div');
-                item.className = 'categoria-item';
-                item.innerHTML = `
-                    <span>${categoria}</span>
-                    <div class="categoria-botoes">
-                        <button onclick="removerCategoria('sexo', '${categoria}')" class="btn-danger">🗑️</button>
-                    </div>
-                `;
-                listaSexo.appendChild(item);
-            });
-        }
-
-        function exportarCategorias() {
-            if (!usuarioAutenticado) {
-                mostrarMensagemAcessoNegado();
-                return;
-            }
-
-            const dataStr = JSON.stringify(categorias, null, 2);
-            const dataBlob = new Blob([dataStr], {type: 'application/json'});
-            const url = URL.createObjectURL(dataBlob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = 'categorias_coordenadores.json';
-            link.click();
-            URL.revokeObjectURL(url);
-            mostrarDebug('📤 Categorias exportadas');
-        }
-
-        function importarCategorias(event) {
-            if (!usuarioAutenticado) {
-                mostrarMensagemAcessoNegado();
-                return;
-            }
-
-            const file = event.target.files[0];
-            if (!file) return;
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const dados = JSON.parse(e.target.result);
-                    if (dados.idade && dados.sexo) {
-                        categorias = dados;
-                        salvarCategorias();
-                        mostrarDebug('📥 Categorias importadas com sucesso');
-                        alert('✅ Categorias importadas com sucesso!');
-                    } else {
-                        throw new Error('Formato de arquivo inválido');
-                    }
-                } catch (error) {
-                    mostrarDebug('❌ Erro ao importar categorias: ' + error.message);
-                    alert('❌ Erro ao importar categorias!');
-                }
-            };
-            reader.readAsText(file);
         }
 
         // =================================================================
@@ -1029,11 +528,9 @@
             });
             
             // Obter valores dos campos
-            const nome = document.getElementById('nomeCoordenador').value.trim();
-            const email = document.getElementById('emailCoordenador').value.trim();
-            const equipe = document.getElementById('nomeEquipe').value.trim();
-            const idade = document.getElementById('categoriaIdade').value;
-            const sexo = document.getElementById('categoriaSexo').value;
+            const nome = document.getElementById('nomeOrganizador').value.trim();
+            const email = document.getElementById('emailOrganizador').value.trim();
+            const competicao = document.getElementById('nomeCompeticao').value.trim();
             
             let isValid = true;
             
@@ -1048,23 +545,13 @@
                 isValid = false;
             }
             
-            if (!equipe) {
-                document.getElementById('erroEquipe').style.display = 'block';
-                isValid = false;
-            }
-            
-            if (!idade) {
-                document.getElementById('erroIdade').style.display = 'block';
-                isValid = false;
-            }
-            
-            if (!sexo) {
-                document.getElementById('erroSexo').style.display = 'block';
+            if (!competicao) {
+                document.getElementById('erroCompeticao').style.display = 'block';
                 isValid = false;
             }
             
             if (isValid) {
-                salvarCoordenador(nome, email, equipe, idade, sexo);
+                salvarOrganizador(nome, email, competicao);
             }
         }
         
@@ -1073,7 +560,7 @@
             return emailRegex.test(email);
         }
         
-        function salvarCoordenador(nome, email, equipe, idade, sexo) {
+        function salvarOrganizador(nome, email, competicao) {
             const submitBtn = document.getElementById('submitBtn');
             const loading = document.getElementById('loading');
             
@@ -1081,43 +568,41 @@
             loading.style.display = 'block';
             
             try {
-                const coordenador = {
+                const organizador = {
                     nome: nome,
                     email: email,
-                    equipe: equipe,
-                    idade: idade,
-                    sexo: sexo,
+                    competicao: competicao,
                     data: new Date().toISOString(),
-                    id: Date.now() // ID único
+                    id: Date.now(),
+                    linkEnviado: false,
+                    dataEnvioLink: null
                 };
                 
-                console.log('📤 Salvando coordenador:', coordenador);
-                mostrarDebug('📤 Salvando coordenador...');
+                console.log('📤 Salvando organizador:', organizador);
+                mostrarDebug('📤 Salvando organizador...');
                 
                 // Adicionar ao array local
-                coordenadores.unshift(coordenador); // Adiciona no início
+                organizadores.unshift(organizador);
                 
                 // Salvar no localStorage
-                localStorage.setItem('coordenadores', JSON.stringify(coordenadores));
+                localStorage.setItem('organizadores', JSON.stringify(organizadores));
                 
-                // Tentar salvar na nuvem (opcional)
-                salvarNaNuvem(coordenador);
+                // Tentar salvar na nuvem
+                salvarNaNuvem(organizador);
                 
-                console.log('✅ Coordenador salvo localmente!');
-                mostrarDebug('✅ Coordenador salvo com sucesso!');
+                console.log('✅ Organizador salvo localmente!');
+                mostrarDebug('✅ Organizador salvo com sucesso!');
                 
                 // Mostrar mensagem de sucesso
                 const successMessage = document.getElementById('successMessage');
                 successMessage.style.display = 'block';
-                successMessage.textContent = '✅ Coordenador cadastrado com sucesso!';
+                successMessage.textContent = '✅ Organizador cadastrado com sucesso!';
                 
                 // Limpar formulário
                 limparFormulario();
                 
-                // Atualizar lista (se estiver autenticado e na aba de lista)
-                if (usuarioAutenticado && document.getElementById('lista').classList.contains('active')) {
-                    atualizarListaCoordenadores();
-                }
+                // Atualizar lista
+                carregarOrganizadores();
                 
                 // Esconder mensagem após 3 segundos
                 setTimeout(() => {
@@ -1127,14 +612,14 @@
             } catch (error) {
                 console.error('❌ Erro ao salvar:', error);
                 mostrarDebug('❌ Erro: ' + error.message);
-                alert('❌ Erro ao salvar coordenador: ' + error.message);
+                alert('❌ Erro ao salvar organizador: ' + error.message);
             } finally {
                 submitBtn.disabled = false;
                 loading.style.display = 'none';
             }
         }
 
-        async function salvarNaNuvem(coordenador) {
+        async function salvarNaNuvem(organizador) {
             try {
                 if (!GOOGLE_SCRIPT_URL.includes('SUA_URL_DO_APPS_SCRIPT')) {
                     console.log('📤 Enviando para a nuvem...');
@@ -1146,7 +631,7 @@
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify(coordenador)
+                        body: JSON.stringify(organizador)
                     });
                     
                     console.log('✅ Dados enviados para a nuvem');
@@ -1158,63 +643,230 @@
             }
         }
 
-        function atualizarListaCoordenadores() {
-            if (!usuarioAutenticado) return;
-
-            const lista = document.getElementById('listaCoordenadores');
+        function carregarOrganizadores() {
+            const lista = document.getElementById('listaOrganizadores');
             const contador = document.getElementById('contadorRegistros');
             
-            if (coordenadores.length === 0) {
-                lista.innerHTML = '<p style="text-align: center; color: #666;">Nenhum coordenador cadastrado ainda.</p>';
+            if (organizadores.length === 0) {
+                lista.innerHTML = '<p style="text-align: center; color: #666;">Nenhum organizador cadastrado ainda.</p>';
                 contador.textContent = '(0 registros)';
                 return;
             }
             
-            console.log(`✅ ${coordenadores.length} coordenadores carregados`);
+            console.log(`✅ ${organizadores.length} organizadores carregados`);
             
             lista.innerHTML = '';
-            contador.textContent = `(${coordenadores.length} registro${coordenadores.length !== 1 ? 's' : ''})`;
+            contador.textContent = `(${organizadores.length} registro${organizadores.length !== 1 ? 's' : ''})`;
             
-            coordenadores.forEach((coord, index) => {
-                const coordenadorDiv = document.createElement('div');
-                coordenadorDiv.className = 'coordenador-item';
+            organizadores.forEach((org, index) => {
+                const organizadorDiv = document.createElement('div');
+                organizadorDiv.className = 'organizador-item';
                 
-                coordenadorDiv.innerHTML = `
+                const statusLink = org.linkEnviado ? 
+                    `<span style="color: #28a745; font-size: 12px;">✅ Link enviado em ${new Date(org.dataEnvioLink).toLocaleDateString('pt-BR')}</span>` : 
+                    `<span style="color: #dc3545; font-size: 12px;">❌ Link não enviado</span>`;
+                
+                organizadorDiv.innerHTML = `
                     <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
-                        <h3>${coord.nome}</h3>
+                        <h3>${org.nome}</h3>
                         <span style="background: #667eea; color: white; padding: 2px 8px; border-radius: 12px; font-size: 12px;">
                             ${index + 1}
                         </span>
                     </div>
-                    <p><strong>📧 E-mail:</strong> ${coord.email}</p>
-                    <p><strong>⚽ Equipe:</strong> ${coord.equipe}</p>
-                    <div style="display: flex; gap: 10px; margin-top: 8px;">
-                        <span class="badge badge-idade">${coord.idade}</span>
-                        <span class="badge badge-sexo">${coord.sexo}</span>
-                    </div>
+                    <p><strong>📧 E-mail:</strong> ${org.email}</p>
+                    <p><strong>🏆 Competição:</strong> ${org.competicao}</p>
                     <p style="margin-top: 8px; font-size: 12px; color: #888;">
-                        <strong>📅 Cadastrado em:</strong> ${new Date(coord.data).toLocaleDateString('pt-BR')} às ${new Date(coord.data).toLocaleTimeString('pt-BR')}
+                        <strong>📅 Cadastrado em:</strong> ${new Date(org.data).toLocaleDateString('pt-BR')}
                     </p>
-                    <button onclick="removerCoordenador(${coord.id})" style="margin-top: 10px; padding: 5px 10px; background: #dc3545; color: white; border: none; border-radius: 4px; font-size: 12px; cursor: pointer;">
-                        🗑️ Remover
-                    </button>
+                    <div style="margin-top: 8px;">
+                        ${statusLink}
+                    </div>
                 `;
                 
-                lista.appendChild(coordenadorDiv);
+                lista.appendChild(organizadorDiv);
             });
         }
-        
-        function removerCoordenador(id) {
-            if (!usuarioAutenticado) {
-                mostrarMensagemAcessoNegado();
+
+        // =================================================================
+        // SISTEMA DE ENVIO DE EMAIL
+        // =================================================================
+
+        async function carregarOrganizadoresParaEmail() {
+            const select = document.getElementById('organizadorSelecionado');
+            
+            try {
+                // Tentar carregar da planilha do Google Sheets
+                const response = await fetch(`https://docs.google.com/spreadsheets/d/${PLANILHA_ORGANIZADORES_ID}/gviz/tq?tqx=out:json`);
+                const text = await response.text();
+                const json = JSON.parse(text.substring(47).slice(0, -2));
+                
+                const dadosPlanilha = json.table.rows.map(row => ({
+                    nome: row.c[0]?.v || '',
+                    email: row.c[1]?.v || '',
+                    competicao: row.c[2]?.v || ''
+                })).filter(org => org.email && org.nome);
+                
+                // Combinar com dados locais
+                const todosOrganizadores = [...organizadores, ...dadosPlanilha];
+                const organizadoresUnicos = Array.from(new Set(todosOrganizadores.map(org => org.email)))
+                    .map(email => todosOrganizadores.find(org => org.email === email));
+                
+                select.innerHTML = '<option value="">Selecione um organizador</option>';
+                
+                organizadoresUnicos.forEach(org => {
+                    const option = document.createElement('option');
+                    option.value = org.email;
+                    option.textContent = `${org.nome} - ${org.competicao} (${org.email})`;
+                    option.setAttribute('data-nome', org.nome);
+                    option.setAttribute('data-competicao', org.competicao);
+                    select.appendChild(option);
+                });
+                
+                if (organizadoresUnicos.length === 0) {
+                    select.innerHTML = '<option value="">Nenhum organizador cadastrado</option>';
+                }
+                
+                mostrarDebug(`✅ ${organizadoresUnicos.length} organizadores carregados para email`);
+                
+            } catch (error) {
+                console.error('❌ Erro ao carregar da planilha:', error);
+                mostrarDebug('❌ Erro ao carregar planilha, usando dados locais');
+                
+                // Usar apenas dados locais em caso de erro
+                select.innerHTML = '<option value="">Selecione um organizador</option>';
+                organizadores.forEach(org => {
+                    const option = document.createElement('option');
+                    option.value = org.email;
+                    option.textContent = `${org.nome} - ${org.competicao} (${org.email})`;
+                    option.setAttribute('data-nome', org.nome);
+                    option.setAttribute('data-competicao', org.competicao);
+                    select.appendChild(option);
+                });
+            }
+        }
+
+        function atualizarPreviaEmail() {
+            const select = document.getElementById('organizadorSelecionado');
+            const mensagem = document.getElementById('mensagemPersonalizada').value;
+            const previa = document.getElementById('previaEmail');
+            
+            const organizadorSelecionado = select.options[select.selectedIndex];
+            
+            if (!organizadorSelecionado || !organizadorSelecionado.value) {
+                previa.innerHTML = 'Selecione um organizador para ver a prévia do email.';
                 return;
             }
+            
+            const nome = organizadorSelecionado.getAttribute('data-nome');
+            const competicao = organizadorSelecionado.getAttribute('data-competicao');
+            const email = organizadorSelecionado.value;
+            
+            const conteudoEmail = `
+                <strong>Para:</strong> ${nome} &lt;${email}&gt;<br>
+                <strong>Assunto:</strong> Link do Sistema de Cadastro de Coordenadores - ${competicao}<br><br>
+                <strong>Mensagem:</strong><br>
+                ${mensagem}<br><br>
+                <strong>Link:</strong> ${LINK_COORDENADORES}<br><br>
+                <em>Este é um email automático do sistema de cadastro de organizadores.</em>
+            `;
+            
+            previa.innerHTML = conteudoEmail;
+        }
 
-            if (confirm('Tem certeza que deseja remover este coordenador?')) {
-                coordenadores = coordenadores.filter(coord => coord.id !== id);
-                localStorage.setItem('coordenadores', JSON.stringify(coordenadores));
-                atualizarListaCoordenadores();
-                mostrarDebug('🗑️ Coordenador removido');
+        async function enviarEmail() {
+            const select = document.getElementById('organizadorSelecionado');
+            const mensagem = document.getElementById('mensagemPersonalizada').value;
+            const btnEnviar = document.getElementById('btnEnviarEmail');
+            const loading = document.getElementById('loadingEmail');
+            const status = document.getElementById('emailStatus');
+            
+            // Limpar status anterior
+            status.style.display = 'none';
+            
+            // Validar seleção
+            if (!select.value) {
+                document.getElementById('erroOrganizador').style.display = 'block';
+                return;
+            }
+            
+            const organizadorSelecionado = select.options[select.selectedIndex];
+            const nome = organizadorSelecionado.getAttribute('data-nome');
+            const competicao = organizadorSelecionado.getAttribute('data-competicao');
+            const email = organizadorSelecionado.value;
+            
+            btnEnviar.disabled = true;
+            loading.style.display = 'block';
+            
+            try {
+                // Simular envio de email (substituir por serviço real como EmailJS, SendGrid, etc.)
+                await simularEnvioEmail(nome, email, competicao, mensagem);
+                
+                // Marcar como enviado no localStorage
+                const organizadorIndex = organizadores.findIndex(org => org.email === email);
+                if (organizadorIndex !== -1) {
+                    organizadores[organizadorIndex].linkEnviado = true;
+                    organizadores[organizadorIndex].dataEnvioLink = new Date().toISOString();
+                    localStorage.setItem('organizadores', JSON.stringify(organizadores));
+                }
+                
+                // Mostrar sucesso
+                status.className = 'email-status email-success';
+                status.innerHTML = `
+                    ✅ Email enviado com sucesso para ${nome}!<br>
+                    <small>O organizador recebeu o link do sistema de coordenadores.</small>
+                `;
+                status.style.display = 'block';
+                
+                mostrarDebug(`✅ Email simulado enviado para: ${email}`);
+                
+                // Atualizar lista
+                carregarOrganizadores();
+                
+            } catch (error) {
+                // Mostrar erro
+                status.className = 'email-status email-error';
+                status.innerHTML = `
+                    ❌ Erro ao enviar email: ${error.message}<br>
+                    <small>Tente novamente ou entre em contato com o suporte.</small>
+                `;
+                status.style.display = 'block';
+                
+                mostrarDebug(`❌ Erro no envio de email: ${error.message}`);
+            } finally {
+                btnEnviar.disabled = false;
+                loading.style.display = 'none';
+            }
+        }
+
+        function simularEnvioEmail(nome, email, competicao, mensagem) {
+            return new Promise((resolve, reject) => {
+                // Simular delay de rede
+                setTimeout(() => {
+                    // Simular 90% de sucesso
+                    if (Math.random() > 0.1) {
+                        console.log(`📧 Email simulado enviado para ${nome} (${email})`);
+                        console.log(`🏆 Competição: ${competicao}`);
+                        console.log(`💬 Mensagem: ${mensagem}`);
+                        console.log(`🔗 Link: ${LINK_COORDENADORES}`);
+                        resolve();
+                    } else {
+                        reject(new Error('Falha na conexão com o servidor de email'));
+                    }
+                }, 2000);
+            });
+        }
+
+        function testarEmail() {
+            // Preencher com dados de teste
+            if (organizadores.length > 0) {
+                const select = document.getElementById('organizadorSelecionado');
+                select.value = organizadores[0].email;
+                document.getElementById('mensagemPersonalizada').value = 'Olá! Este é um teste do sistema de envio de links. Segue o link para cadastro de coordenadores:';
+                atualizarPreviaEmail();
+                mostrarDebug('🧪 Dados de teste preenchidos para email');
+                alert('✅ Dados de teste preenchidos! Clique em "Enviar Link por Email" para testar.');
+            } else {
+                alert('❌ Nenhum organizador cadastrado para testar. Cadastre um organizador primeiro.');
             }
         }
 
@@ -1226,14 +878,12 @@
             console.log('🧪 Inserindo dados de teste...');
             
             // Preencher formulário com dados de teste
-            document.getElementById('nomeCoordenador').value = 'Carlos Silva';
-            document.getElementById('emailCoordenador').value = 'carlos.silva@email.com';
-            document.getElementById('nomeEquipe').value = 'Dragões FC';
-            document.getElementById('categoriaIdade').value = categorias.idade[2] || 'Sub-17';
-            document.getElementById('categoriaSexo').value = categorias.sexo[0] || 'Masculino';
+            document.getElementById('nomeOrganizador').value = 'João Silva';
+            document.getElementById('emailOrganizador').value = 'joao.silva@exemplo.com';
+            document.getElementById('nomeCompeticao').value = 'Campeonato Estadual 2024';
             
             mostrarDebug('🧪 Dados de teste inseridos');
-            alert('✅ Dados de teste inseridos!\n\nClique em "Cadastrar Coordenador" para testar.');
+            alert('✅ Dados de teste inseridos!\n\nClique em "Cadastrar Organizador" para testar.');
         }
 
         function limparFormulario() {
@@ -1245,158 +895,27 @@
             mostrarDebug('🗑️ Formulário limpo');
         }
 
-        function limparTodosDados() {
-            if (!usuarioAutenticado) {
-                mostrarMensagemAcessoNegado();
-                return;
-            }
-
-            if (confirm('Tem certeza que deseja limpar TODOS os coordenadores e categorias?')) {
-                coordenadores = [];
-                categorias = JSON.parse(JSON.stringify(categoriasPadrao));
-                localStorage.removeItem('coordenadores');
-                localStorage.setItem('categorias', JSON.stringify(categorias));
-                atualizarListaCoordenadores();
-                salvarCategorias();
-                console.log('🗑️ Todos os dados foram limpos');
-                mostrarDebug('🗑️ Todos os dados foram limpos');
-                alert('✅ Todos os dados foram limpos!');
-            }
-        }
-
-        function exportarDados() {
-            if (!usuarioAutenticado) {
-                mostrarMensagemAcessoNegado();
-                return;
-            }
-
-            if (coordenadores.length === 0) {
-                alert('Nenhum dado para exportar!');
-                return;
-            }
-            
-            const dataParaExportar = {
-                coordenadores: coordenadores,
-                categorias: categorias,
-                dataExportacao: new Date().toISOString()
-            };
-            
-            const dataStr = JSON.stringify(dataParaExportar, null, 2);
-            const dataBlob = new Blob([dataStr], {type: 'application/json'});
-            const url = URL.createObjectURL(dataBlob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = 'coordenadores_backup_' + new Date().toISOString().split('T')[0] + '.json';
-            link.click();
-            URL.revokeObjectURL(url);
-            
-            mostrarDebug('📤 Dados exportados para JSON');
-        }
-
-        function importarDados(event) {
-            if (!usuarioAutenticado) {
-                mostrarMensagemAcessoNegado();
-                return;
-            }
-
-            const file = event.target.files[0];
-            if (!file) return;
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const dados = JSON.parse(e.target.result);
-                    
-                    if (dados.coordenadores) {
-                        coordenadores = dados.coordenadores;
-                        localStorage.setItem('coordenadores', JSON.stringify(coordenadores));
-                    }
-                    
-                    if (dados.categorias) {
-                        categorias = dados.categorias;
-                        localStorage.setItem('categorias', JSON.stringify(categorias));
-                        salvarCategorias();
-                    }
-                    
-                    atualizarListaCoordenadores();
-                    mostrarDebug('📥 Dados importados com sucesso');
-                    alert('✅ Dados importados com sucesso!');
-                } catch (error) {
-                    mostrarDebug('❌ Erro ao importar dados: ' + error.message);
-                    alert('❌ Erro ao importar dados!');
-                }
-            };
-            reader.readAsText(file);
-        }
-
         function mostrarDebug(mensagem) {
             const debugInfo = document.getElementById('debugInfo');
             const agora = new Date().toLocaleTimeString();
             debugInfo.innerHTML += `[${agora}] ${mensagem}<br>`;
             debugInfo.style.display = 'block';
             debugInfo.scrollTop = debugInfo.scrollHeight;
-            
-            // Limpar debug após 30 segundos
-            setTimeout(() => {
-                if (debugInfo.children.length > 10) {
-                    debugInfo.innerHTML = '';
-                }
-            }, 30000);
         }
 
-        // Validação em tempo real
-        document.querySelectorAll('input, select').forEach(campo => {
-            campo.addEventListener('input', function() {
-                const errorId = `erro${this.name.charAt(0).toUpperCase() + this.name.slice(1)}`;
-                const errorElement = document.getElementById(errorId);
-                if (errorElement) {
-                    errorElement.style.display = 'none';
-                }
-            });
-        });
+        // Event listeners para atualização em tempo real
+        document.getElementById('organizadorSelecionado').addEventListener('change', atualizarPreviaEmail);
+        document.getElementById('mensagemPersonalizada').addEventListener('input', atualizarPreviaEmail);
 
         // =================================================================
-        // INICIALIZAÇÃO DO SISTEMA
+        // INICIALIZAÇÃO
         // =================================================================
 
-        // Carregar categorias ao iniciar
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('🚀 Sistema de coordenadores carregado!');
+            console.log('🚀 Sistema de organizadores carregado!');
             mostrarDebug('🚀 Sistema iniciado');
-            salvarCategorias(); // Isso atualiza os selects e listas
-            
-            // Verificar se já está autenticado (por exemplo, se recarregou a página)
-            if (localStorage.getItem('usuarioAutenticado') === 'true') {
-                usuarioAutenticado = true;
-                atualizarInterfaceAutenticacao();
-                document.getElementById('loginContainer').style.display = 'none';
-            }
+            carregarOrganizadores();
         });
-
-        // Adicionar botão de logout
-        setTimeout(() => {
-            const debugInfo = document.getElementById('debugInfo');
-            if (debugInfo) {
-                debugInfo.innerHTML += `
-                    <div style="margin-top: 10px;">
-                        <button onclick="logout()" style="padding: 5px 10px; background: #6c757d; color: white; border: none; border-radius: 4px; font-size: 12px; cursor: pointer;">
-                            🔓 Sair do Modo Admin
-                        </button>
-                    </div>
-                `;
-            }
-        }, 2000);
-
-        // Atualizar lista a cada 30 segundos (apenas se autenticado)
-        setInterval(() => {
-            if (usuarioAutenticado) {
-                const contador = document.getElementById('contadorRegistros');
-                if (contador && !contador.textContent.includes('(erro)')) {
-                    atualizarListaCoordenadores();
-                }
-            }
-        }, 30000);
     </script>
 </body>
 </html>
-
