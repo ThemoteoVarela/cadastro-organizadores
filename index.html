@@ -474,7 +474,7 @@
         // =================================================================
         // CONFIGURAÇÃO
         // =================================================================
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwKzSOFTIaMXWq8FTm2xmhe-EEpYPQgXCPTjrTojH5Pgy7CSyosr2Zyz2PPZqNI5m1OJg/exec';
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyoKeFlvLV42IclrHhVMtKof1r2-79ZmqjbXpRk4eZU7SjA1wgmoI-Tn8biQ7VaUAN43w/exec';
         const LINK_COORDENADORES = 'https://themoteovarela.github.io/cadastro-coordenadores/';
         const PLANILHA_ORGANIZADORES_ID = '1rGQmU_FgsQEu8qWqz5KTseKpALVYTQfx9kJ0lRkYuNw';
 
@@ -620,29 +620,34 @@
         }
 
         async function salvarNaNuvem(organizador) {
-            try {
-                if (!GOOGLE_SCRIPT_URL.includes('SUA_URL_DO_APPS_SCRIPT')) {
-                    console.log('📤 Enviando para a nuvem...');
-                    mostrarDebug('☁️  Enviando dados para a nuvem...');
-                    
-                    const response = await fetch(GOOGLE_SCRIPT_URL, {
-                        method: 'POST',
-                        mode: 'no-cors',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(organizador)
-                    });
-                    
-                    console.log('✅ Dados enviados para a nuvem');
-                    mostrarDebug('✅ Dados sincronizados com a nuvem');
-                }
-            } catch (error) {
-                console.log('ℹ️  Dados salvos apenas localmente: ' + error.message);
-                mostrarDebug('ℹ️  Dados salvos localmente (nuvem offline)');
+    try {
+        if (!GOOGLE_SCRIPT_URL.includes('SUA_URL_DO_APPS_SCRIPT')) {
+            console.log('📤 Enviando para a nuvem...');
+            mostrarDebug('☁️  Enviando dados para a nuvem...');
+            
+            // ALTERAÇÃO: Remover mode: 'no-cors' para poder receber resposta
+            const response = await fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(organizador)
+            });
+            
+            // ALTERAÇÃO: Tentar ler a resposta se disponível
+            if (response && response.ok) {
+                const resultado = await response.json();
+                console.log('✅ Resposta da nuvem:', resultado);
             }
+            
+            console.log('✅ Dados enviados para a nuvem');
+            mostrarDebug('✅ Dados sincronizados com a nuvem');
         }
-
+    } catch (error) {
+        console.log('ℹ️  Dados salvos apenas localmente: ' + error.message);
+        mostrarDebug('ℹ️  Dados salvos localmente (nuvem offline)');
+    }
+}
         function carregarOrganizadores() {
             const lista = document.getElementById('listaOrganizadores');
             const contador = document.getElementById('contadorRegistros');
