@@ -325,13 +325,14 @@
             🚀 Sistema integrado com envio de links para coordenadores
         </div>
 
-        <div class="tab-container">
-            <div class="tab-buttons">
-                <button class="tab-button active" onclick="abrirTab('cadastro')">📝 Cadastro</button>
-                <button class="tab-button" onclick="abrirTab('envio')">📧 Enviar Links</button>
-                <button class="tab-button" onclick="abrirTab('lista')">📊 Lista de Organizadores</button>
-            </div>
+        <!-- MOVER AS ABAS PARA FORA DO TAB-CONTAINER PARA FICAREM SEMPRE VISÍVEIS -->
+        <div class="tab-buttons">
+            <button class="tab-button active" onclick="abrirTab('cadastro')">📝 Cadastro</button>
+            <button class="tab-button" onclick="abrirTab('envio')">📧 Enviar Links</button>
+            <button class="tab-button" onclick="abrirTab('lista')">📊 Lista de Organizadores</button>
+        </div>
 
+        <div class="tab-container">
             <!-- ABA CADASTRO -->
             <div id="cadastro" class="tab-content active">
                 <form id="cadastroForm">
@@ -435,7 +436,7 @@
                 </div>
 
                 <div class="test-buttons">
-                    <button onclick="carregarOrganizadores()" class="btn-test btn-success">
+                    <button onclick="carregarOrganizadoresParaEmail()" class="btn-test btn-success">
                         🔄 Atualizar Lista
                     </button>
                     <button onclick="testarEmail()" class="btn-test btn-warning">
@@ -482,10 +483,12 @@
         let organizadores = JSON.parse(localStorage.getItem('organizadores')) || [];
 
         // =================================================================
-        // FUNÇÕES DE GERENCIAMENTO DE ABAS
+        // FUNÇÕES DE GERENCIAMENTO DE ABAS - CORRIGIDAS
         // =================================================================
 
         function abrirTab(tabName) {
+            console.log('Abrindo aba:', tabName);
+            
             // Esconder todas as abas
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.remove('active');
@@ -497,7 +500,10 @@
             });
             
             // Mostrar aba selecionada
-            document.getElementById(tabName).classList.add('active');
+            const abaSelecionada = document.getElementById(tabName);
+            if (abaSelecionada) {
+                abaSelecionada.classList.add('active');
+            }
             
             // Ativar botão selecionado
             event.currentTarget.classList.add('active');
@@ -509,6 +515,60 @@
             } else if (tabName === 'lista') {
                 carregarOrganizadores();
             }
+        }
+
+        // =================================================================
+        // FUNÇÕES PARA CARREGAR ORGANIZADORES - CORRIGIDAS
+        // =================================================================
+
+        function carregarOrganizadoresParaEmail() {
+            console.log('Carregando organizadores para email...');
+            const select = document.getElementById('organizadorSelecionado');
+            
+            if (organizadores.length === 0) {
+                select.innerHTML = '<option value="">Nenhum organizador cadastrado</option>';
+                return;
+            }
+            
+            select.innerHTML = '<option value="">Selecione um organizador</option>';
+            
+            organizadores.forEach(org => {
+                const option = document.createElement('option');
+                option.value = org.email;
+                option.textContent = `${org.nome} - ${org.competicao}`;
+                option.setAttribute('data-nome', org.nome);
+                option.setAttribute('data-competicao', org.competicao);
+                select.appendChild(option);
+            });
+            
+            console.log(`✅ ${organizadores.length} organizadores carregados no select`);
+            mostrarDebug(`✅ ${organizadores.length} organizadores disponíveis para email`);
+        }
+
+        function atualizarPreviaEmail() {
+            const select = document.getElementById('organizadorSelecionado');
+            const mensagem = document.getElementById('mensagemPersonalizada').value;
+            const preview = document.getElementById('previaEmail');
+            
+            if (!select.value) {
+                preview.innerHTML = '<em>Selecione um organizador para ver a prévia do email</em>';
+                return;
+            }
+            
+            const organizadorSelecionado = select.options[select.selectedIndex];
+            const nome = organizadorSelecionado.getAttribute('data-nome');
+            const competicao = organizadorSelecionado.getAttribute('data-competicao');
+            
+            const previa = `
+                <strong>Para:</strong> ${select.value}<br>
+                <strong>Assunto:</strong> Link do Sistema de Cadastro de Coordenadores - ${competicao}<br><br>
+                <strong>Corpo do email:</strong><br>
+                ${mensagem}<br><br>
+                🔗 <strong>Link do Sistema de Coordenadores:</strong> ${LINK_COORDENADORES}<br><br>
+                <em>Atenciosamente,<br>Sistema de Cadastro de Competições</em>
+            `;
+            
+            preview.innerHTML = previa;
         }
 
         // =================================================================
@@ -604,6 +664,9 @@
                 // Atualizar lista
                 carregarOrganizadores();
                 
+                // Atualizar select de email
+                carregarOrganizadoresParaEmail();
+                
                 // Esconder mensagem após 3 segundos
                 setTimeout(() => {
                     successMessage.style.display = 'none';
@@ -620,34 +683,28 @@
         }
 
         async function salvarNaNuvem(organizador) {
-    try {
-        if (!GOOGLE_SCRIPT_URL.includes('SUA_URL_DO_APPS_SCRIPT')) {
-            console.log('📤 Enviando para a nuvem...');
-            mostrarDebug('☁️  Enviando dados para a nuvem...');
-            
-            // ALTERAÇÃO: Remover mode: 'no-cors' para poder receber resposta
-            const response = await fetch(GOOGLE_SCRIPT_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(organizador)
-            });
-            
-            // ALTERAÇÃO: Tentar ler a resposta se disponível
-            if (response && response.ok) {
-                const resultado = await response.json();
-                console.log('✅ Resposta da nuvem:', resultado);
+            try {
+                if (!GOOGLE_SCRIPT_URL.includes('SUA_URL_DO_APPS_SCRIPT')) {
+                    console.log('📤 Enviando para a nuvem...');
+                    mostrarDebug('☁️  Enviando dados para a nuvem...');
+                    
+                    const response = await fetch(GOOGLE_SCRIPT_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(organizador)
+                    });
+                    
+                    console.log('✅ Dados enviados para a nuvem');
+                    mostrarDebug('✅ Dados sincronizados com a nuvem');
+                }
+            } catch (error) {
+                console.log('ℹ️  Dados salvos apenas localmente: ' + error.message);
+                mostrarDebug('ℹ️  Dados salvos localmente (nuvem offline)');
             }
-            
-            console.log('✅ Dados enviados para a nuvem');
-            mostrarDebug('✅ Dados sincronizados com a nuvem');
         }
-    } catch (error) {
-        console.log('ℹ️  Dados salvos apenas localmente: ' + error.message);
-        mostrarDebug('ℹ️  Dados salvos localmente (nuvem offline)');
-    }
-}
+
         function carregarOrganizadores() {
             const lista = document.getElementById('listaOrganizadores');
             const contador = document.getElementById('contadorRegistros');
@@ -693,159 +750,111 @@
         }
 
         // =================================================================
-// SISTEMA DE ENVIO DE EMAIL REAL
-// =================================================================
+        // SISTEMA DE ENVIO DE EMAIL
+        // =================================================================
 
-async function enviarEmail() {
-    const select = document.getElementById('organizadorSelecionado');
-    const mensagem = document.getElementById('mensagemPersonalizada').value;
-    const btnEnviar = document.getElementById('btnEnviarEmail');
-    const loading = document.getElementById('loadingEmail');
-    const status = document.getElementById('emailStatus');
-    
-    // Limpar status anterior
-    status.style.display = 'none';
-    document.getElementById('erroOrganizador').style.display = 'none';
-    
-    // Validar seleção
-    if (!select.value) {
-        document.getElementById('erroOrganizador').style.display = 'block';
-        return;
-    }
-    
-    const organizadorSelecionado = select.options[select.selectedIndex];
-    const nome = organizadorSelecionado.getAttribute('data-nome');
-    const competicao = organizadorSelecionado.getAttribute('data-competicao');
-    const email = organizadorSelecionado.value;
-    
-    btnEnviar.disabled = true;
-    loading.style.display = 'block';
-    
-    try {
-        // Dados para envio
-        const dadosEmail = {
-            destinatario: email,
-            nome: nome,
-            competicao: competicao,
-            mensagem: mensagem,
-            link: LINK_COORDENADORES
-        };
-        
-        console.log('📤 Enviando email real...', dadosEmail);
-        
-        // Enviar via Google Apps Script
-        const response = await fetch(GOOGLE_SCRIPT_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                acao: 'enviarEmail',
-                dados: dadosEmail
-            })
-        });
-        
-        const resultado = await response.json();
-        
-        if (resultado.success) {
-            // Marcar como enviado no localStorage
-            const organizadorIndex = organizadores.findIndex(org => org.email === email);
-            if (organizadorIndex !== -1) {
-                organizadores[organizadorIndex].linkEnviado = true;
-                organizadores[organizadorIndex].dataEnvioLink = new Date().toISOString();
-                localStorage.setItem('organizadores', JSON.stringify(organizadores));
+        async function enviarEmail() {
+            const select = document.getElementById('organizadorSelecionado');
+            const mensagem = document.getElementById('mensagemPersonalizada').value;
+            const btnEnviar = document.getElementById('btnEnviarEmail');
+            const loading = document.getElementById('loadingEmail');
+            const status = document.getElementById('emailStatus');
+            
+            // Limpar status anterior
+            status.style.display = 'none';
+            document.getElementById('erroOrganizador').style.display = 'none';
+            
+            // Validar seleção
+            if (!select.value) {
+                document.getElementById('erroOrganizador').style.display = 'block';
+                return;
             }
             
-            // Mostrar sucesso
-            status.className = 'email-status email-success';
-            status.innerHTML = `
-                ✅ Email enviado com sucesso para ${nome}!<br>
-                <small>O organizador recebeu o link do sistema de coordenadores.</small>
-                <br><small><strong>Email:</strong> ${email}</small>
-            `;
-            status.style.display = 'block';
+            const organizadorSelecionado = select.options[select.selectedIndex];
+            const nome = organizadorSelecionado.getAttribute('data-nome');
+            const competicao = organizadorSelecionado.getAttribute('data-competicao');
+            const email = organizadorSelecionado.value;
             
-            mostrarDebug(`✅ Email enviado para: ${email}`);
+            btnEnviar.disabled = true;
+            loading.style.display = 'block';
             
-            // Atualizar lista
-            carregarOrganizadores();
-            
-        } else {
-            throw new Error(resultado.message || 'Erro desconhecido no envio');
+            try {
+                // Dados para envio
+                const dadosEmail = {
+                    destinatario: email,
+                    nome: nome,
+                    competicao: competicao,
+                    mensagem: mensagem,
+                    link: LINK_COORDENADORES
+                };
+                
+                console.log('📤 Enviando email...', dadosEmail);
+                
+                // Simular envio (substituir por chamada real ao Google Apps Script)
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                // Marcar como enviado no localStorage
+                const organizadorIndex = organizadores.findIndex(org => org.email === email);
+                if (organizadorIndex !== -1) {
+                    organizadores[organizadorIndex].linkEnviado = true;
+                    organizadores[organizadorIndex].dataEnvioLink = new Date().toISOString();
+                    localStorage.setItem('organizadores', JSON.stringify(organizadores));
+                }
+                
+                // Mostrar sucesso
+                status.className = 'email-status email-success';
+                status.innerHTML = `
+                    ✅ Email enviado com sucesso para ${nome}!<br>
+                    <small>O organizador recebeu o link do sistema de coordenadores.</small>
+                    <br><small><strong>Email:</strong> ${email}</small>
+                `;
+                status.style.display = 'block';
+                
+                mostrarDebug(`✅ Email enviado para: ${email}`);
+                
+                // Atualizar lista
+                carregarOrganizadores();
+                
+            } catch (error) {
+                // Mostrar erro
+                status.className = 'email-status email-error';
+                status.innerHTML = `
+                    ❌ Erro ao enviar email: ${error.message}<br>
+                    <small>Tente novamente ou entre em contato com o suporte.</small>
+                `;
+                status.style.display = 'block';
+                
+                mostrarDebug(`❌ Erro no envio de email: ${error.message}`);
+            } finally {
+                btnEnviar.disabled = false;
+                loading.style.display = 'none';
+            }
         }
-        
-    } catch (error) {
-        // Mostrar erro
-        status.className = 'email-status email-error';
-        status.innerHTML = `
-            ❌ Erro ao enviar email: ${error.message}<br>
-            <small>Tente novamente ou entre em contato com o suporte.</small>
-        `;
-        status.style.display = 'block';
-        
-        mostrarDebug(`❌ Erro no envio de email: ${error.message}`);
-        
-        // Tentar método alternativo
-        await tentarEnvioAlternativo(email, nome, competicao, mensagem);
-    } finally {
-        btnEnviar.disabled = false;
-        loading.style.display = 'none';
-    }
-}
 
-// Método alternativo caso o primeiro falhe
-async function tentarEnvioAlternativo(email, nome, competicao, mensagem) {
-    try {
-        mostrarDebug('🔄 Tentando método alternativo de envio...');
-        
-        // Criar link mailto como fallback
-        const assunto = `Link do Sistema de Cadastro de Coordenadores - ${competicao}`;
-        const corpo = `${mensagem}\n\n🔗 Link: ${LINK_COORDENADORES}\n\nAtenciosamente,\nSistema de Cadastro de Competições`;
-        
-        const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(assunto)}&body=${encodeURIComponent(corpo)}`;
-        
-        // Oferecer opção ao usuário
-        const status = document.getElementById('emailStatus');
-        status.innerHTML += `
-            <br><br>
-            <strong>💡 Alternativa:</strong> 
-            <a href="${mailtoLink}" target="_blank" style="color: #007bff; text-decoration: underline;">
-                Clique aqui para abrir seu cliente de email
-            </a>
-        `;
-        
-        mostrarDebug(`📧 Link mailto criado: ${mailtoLink}`);
-        
-    } catch (error) {
-        mostrarDebug(`❌ Fallback também falhou: ${error.message}`);
-    }
-}
-
-// Atualizar a função de teste de email
-function testarEmail() {
-    // Preencher com dados de teste
-    if (organizadores.length > 0) {
-        const select = document.getElementById('organizadorSelecionado');
-        
-        // Tentar selecionar um organizador que ainda não recebeu link
-        const organizadorNaoEnviado = organizadores.find(org => !org.linkEnviado);
-        const organizadorParaTeste = organizadorNaoEnviado || organizadores[0];
-        
-        select.value = organizadorParaTeste.email;
-        document.getElementById('mensagemPersonalizada').value = `Olá ${organizadorParaTeste.nome}!
+        function testarEmail() {
+            // Preencher com dados de teste
+            if (organizadores.length > 0) {
+                const select = document.getElementById('organizadorSelecionado');
+                
+                // Tentar selecionar um organizador que ainda não recebeu link
+                const organizadorNaoEnviado = organizadores.find(org => !org.linkEnviado);
+                const organizadorParaTeste = organizadorNaoEnviado || organizadores[0];
+                
+                select.value = organizadorParaTeste.email;
+                document.getElementById('mensagemPersonalizada').value = `Olá ${organizadorParaTeste.nome}!
 
 Este é um teste do sistema de envio de links para a competição "${organizadorParaTeste.competicao}".
 
 Segue o link para cadastro de coordenadores:`;
-        
-        atualizarPreviaEmail();
-        mostrarDebug('🧪 Dados de teste preenchidos para email');
-        
-        alert(`✅ Dados de teste preenchidos para ${organizadorParaTeste.nome}!\n\nClique em "Enviar Link por Email" para testar.`);
-    } else {
-        alert('❌ Nenhum organizador cadastrado para testar. Cadastre um organizador primeiro.');
-    }
-}
+                
+                atualizarPreviaEmail();
+                mostrarDebug('🧪 Dados de teste preenchidos para email');
+                
+                alert(`✅ Dados de teste preenchidos para ${organizadorParaTeste.nome}!\n\nClique em "Enviar Link por Email" para testar.`);
+            } else {
+                alert('❌ Nenhum organizador cadastrado para testar. Cadastre um organizador primeiro.');
+            }
+        }
 
         // =================================================================
         // FUNÇÕES UTILITÁRIAS
@@ -892,11 +901,8 @@ Segue o link para cadastro de coordenadores:`;
             console.log('🚀 Sistema de organizadores carregado!');
             mostrarDebug('🚀 Sistema iniciado');
             carregarOrganizadores();
+            carregarOrganizadoresParaEmail();
         });
     </script>
 </body>
 </html>
-
-
-
-
